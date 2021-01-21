@@ -2,6 +2,8 @@
 
 # minikube : minikube start --cpus 4 --memory 8192
 # https://itnext.io/deploy-elastic-stack-on-kubernetes-1-15-using-helm-v3-9105653c7c8
+# kubectl port-forward svc/elasticsearch-master 9200
+# kubectl port-forward svc/kibana-1611244403-kibana 5601
 
 NAME=$1
 NS=default
@@ -19,7 +21,6 @@ function help {
 function check {
 	ELASTIC_REPO=$(helm repo list | grep elastic)
 	if [[ -z ${ELASTIC_REPO} ]]; then
-		echo HERE
 		helm repo add elastic https://helm.elastic.co
 		helm repo update
 	fi
