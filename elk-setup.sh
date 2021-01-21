@@ -8,7 +8,7 @@ NS=default
 CHART=elastic/${NAME}
 VERSION=v7.6.1
 VALUES=${NAME}/values.yaml
-RELEASE=$(helm ls | awk '{print $1}' | grep ${NAME})
+RELEASE=$(helm ls | awk '{print $1}' | grep "${NAME}")
 
 function help {
 	echo -e "\nPlease run this script this 2 parameters"
@@ -17,23 +17,28 @@ function help {
 }
 
 function check {
+	ELASTIC_REPO=$(helm repo list | grep elastic)
+	if [[ -z ${ELASTIC_REPO} ]]; then
+		echo HERE
+		helm repo add elastic https://helm.elastic.co
+		helm repo update
+	fi
 	NS_LOG=$(kubectl get namespaces | grep log)
 	if [[ -z ${NS_LOG} ]]; then
 		kubectl create namespace log
 	fi
 	HELM_VERSION=$(helm version --short)
-	if [[ ${HELM_VERSION:1:1} -ne 3 ]]; then 
+	if [[ ${HELM_VERSION:1:1} -ne 3 ]]; then
 		curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
 		chmod 700 get_helm.sh
 		./get_helm.sh
-	fi 
+	fi
 }
 
 check
-helm repo update
 case $@ in
 elasticsearch | kibana | metricbeat | filebeat)
-  helm install ${CHART} --namespace ${NS} -f ${VALUES} --version ${VERSION} --generate-name
+  helm install "${CHART}" --namespace ${NS} -f "${VALUES}" --version ${VERSION} --generate-name
   echo "Installed ${NAME}"
   ;;
 *)
